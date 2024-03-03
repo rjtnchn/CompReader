@@ -7,10 +7,11 @@ from .models import Poem, Question
 
 # Create your views here.
 
-
+@login_required(login_url="/login")
 def home(request):
     return render(request, 'main/home.html')
 
+@login_required(login_url="/login")
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -23,18 +24,18 @@ def sign_up(request):
 
     return render(request, 'registration/sign_up.html', {"form": form})
 
-@login_required
+@login_required(login_url="/login")
 def quiz(request):
     poems = Poem.objects.all()
     return render(request, 'quiz/quiz.html' , {'poems': poems})
 
-@login_required
+@login_required(login_url="/login")
 def difficulty(request, poem_id):
     poem = Poem.objects.get(id=poem_id)
     questions = Question.objects.filter(poem=poem)
     return render(request, 'difficulty.html', {'poem' : poem, 'questions' : questions})
 
-@login_required
+@login_required(login_url="/login")
 def submit_answers(request):
     if request.method == 'POST':
 
@@ -59,34 +60,3 @@ def submit_answers(request):
             return render(request, 'score.html', {'score': score, 'next_poem': next_poem})
     else:
             return redirect('quiz')
-    
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('quiz')
-        else:
-            # Invalid login
-            return render(request, 'login.html', {'error_message': 'Invalid username or password.'})
-    else:
-        return render(request, 'login.html')
-
-@login_required
-def user_logout(request):
-    logout(request)
-    return redirect('login')
-
-def register(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        email = request.POST.get('email')
-        user = User.objects.create_user(username=username, email=email, password=password)
-        login(request, user)
-        return redirect('quiz')
-    else:
-        return render(request, 'register.html')
