@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const poemId = form.getAttribute('data-poem-id');
             form.appendChild(document.createElement('input')).setAttribute('type', 'hidden');
             form.lastChild.setAttribute('name', 'poem_id');
-            form.lastChild.setAttribute('value', poemId);
+            form.lastChild.setAttribute('value', 'poemId');
             form.submit();
         }
     });

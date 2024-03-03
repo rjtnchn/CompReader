@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.db.models import Count
@@ -20,7 +21,7 @@ def sign_up(request):
     else:
         form = RegisterForm()
 
-    return render(request, 'registration/sign-up.html', {"form": form})
+    return render(request, 'registration/sign_up.html', {"form": form})
 
 @login_required
 def quiz(request):
