@@ -12,3 +12,6 @@ class Question(models.Model):
     question_text = models.TextField()
     choices = models.CharField(max_length=5)
     correct_answer = models.CharField(max_length=100)
+
+class Difficulty(models.Model):
+    name = models.CharField(max_length=100)
