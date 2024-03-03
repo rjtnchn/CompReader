@@ -1,0 +1,22 @@
+{% extends 'quiz/quiz.html' %}
+{% block title %}Difficulty{% endblock %}
+{% block content %}
+<h2>{{ poem.title }}</h2>
+<p>{{ poem.content }}</p>
+<form id="answersForm" action="{% url 'submit_answers' %}" method="post">
+    {% csrf_token %}
+    {% for question in questions %}
+    <p>{{ question.question_text }}</p>
+    {% for choice in question.choices %}
+    <input type="radio" name="{{ question.id }}" value="{{ choice }}"> {{ choice }}<br>
+    {% endfor %}
+    {% endfor %}
+    <button id="doneButton">Done</button>
+</form>
+<br>
+{% if next_poem %}
+<a href="{% url 'difficulty' next_poem.id %}">Next Difficulty</a>
+{% else %}
+<a href="{% url 'quiz' %}">Back to Difficulty Selection</a>
+{% endif %}
+{% endblock %}
