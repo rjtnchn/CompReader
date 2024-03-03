@@ -11,4 +11,3 @@ class Question(models.Model):
     difficulty = models.CharField(max_length=10) #Easy, Normal, Hard
     question_text = models.TextField()
     correct_answer = models.CharField(max_length=100)
-    
