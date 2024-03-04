@@ -7,7 +7,7 @@ from .models import Poem, Question
 
 # Create your views here.
 
-@login_required(login_url="/login/")
+
 def home(request):
     return render(request, 'main/home.html')
 
@@ -77,3 +77,10 @@ def normal_quiz(request):
 def hard_quiz(request):
     # Logic for hard quiz
     pass
+
+def log_out(request):
+     print(f"Signing out the {request.user}")
+     if request.user.is_authenticated:
+          logout(request)
+
+     return redirect('/home')
