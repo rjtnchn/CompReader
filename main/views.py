@@ -25,13 +25,13 @@ def sign_up(request):
     return render(request, 'registration/sign_up.html', {"form": form})
 
 
-@require_POST
+
 def log_out(request):
      print(f"Signing out the {request.user}")
      if request.user.is_authenticated:
           logout(request)
-
      return redirect('/home')
+
 
 def difficulty_selection(request):
     return render(request, 'quiz/difficulty_selection.html')
