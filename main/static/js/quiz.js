@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+/* document.addEventListener('DOMContentLoaded', function() {
     const doneButton = document.getElementById('doneButton');
     doneButton.addEventListener('click', function() {
         if (confirm('Are you sure you want to proceed? You cannot go back.')) {
@@ -11,4 +11,4 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit();
         }
     });
-});
+}); */

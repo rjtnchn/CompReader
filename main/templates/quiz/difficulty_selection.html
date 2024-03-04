@@ -1,22 +1,34 @@
-{% extends 'main/base.html' %}
-{% block title %}Difficulty Selection{% endblock %}
+{% extends 'main/base.html' %} {% block title %}Difficulty Selection{%endblock%}
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <div>
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/home">Home</a>
-                </li>
-            </ul>
-        </div>
-        {% endblock %}
-        {% block content %}
-        <h1>Welcome to the Poetry Quiz!</h1>
-        <p>Please select a difficulty:</p>
-        <ul>
-            <li><a href="{% url 'easy_quiz' %}">Literal</a></li>
-            <li><a href="{% url 'normal_quiz' %}">Inference</a></li>
-            <li><a href="{% url 'hard_quiz' %}">Evaluative</a></li>
-        </ul>
-        {% endblock %}
+<div>
+  <ul class="navbar-nav">
+    {% if user.is_authenticated %}
+    <span class="navbar-text">Logged in as {{ user.username }} | </span>
+    <li class="nav-item">
+      <form action="{% url 'log_out' %}" method="post">
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="nav-link"
+          style="border: none; background: none; cursor: pointer"
+        >
+          Logout
+        </button>
+      </form>
+    </li>
+    {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="/login">Login</a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %} {% block content %}
+<h1>Welcome to the Poetry Quiz!</h1>
+<p>Please select a difficulty:</p>
+<ul>
+  <li><a href="">Literal</a></li>
+  <li><a href="">Inference</a></li>
+  <li><a href="">Evaluative</a></li>
+</ul>
+{% endblock %}
