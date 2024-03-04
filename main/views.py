@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth import login, logout, authenticate
 from django.db.models import Count
 from .models import Poem, Question
@@ -78,6 +79,7 @@ def hard_quiz(request):
     # Logic for hard quiz
     pass
 
+@require_POST
 def log_out(request):
      print(f"Signing out the {request.user}")
      if request.user.is_authenticated:
