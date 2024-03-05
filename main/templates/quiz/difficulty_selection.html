@@ -1,36 +1,32 @@
-{% extends 'main/base.html' %} 
+{% extends 'main/base.html' %}
 {% block title %}Difficulty Selection{% endblock %}
 {% block navbar %}
 <div>
-  <ul class="navbar-nav">
-    {% if user.is_authenticated %}
-    <span class="navbar-text">Logged in as {{ user.username }} | </span>
-    <li class="nav-item">
-      <form action="{% url 'log_out' %}" method="post">
-        {% csrf_token %}
-        <button
-          type="submit"
-          class="nav-link"
-          style="border: none; background: none; cursor: pointer"
-        >
-          Logout
-        </button>
-      </form>
-    </li>
-    {% else %}
-    <li class="nav-item">
-      <a class="nav-link" href="/login">Login</a>
-    </li>
-    {% endif %}
-  </ul>
+    <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+        <span class="navbar-text">Logged in as {{ user.username }} | </span>
+        <li class="nav-item">
+            <form action="{% url 'log_out' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="nav-link" style="border: none; background: none; cursor: pointer">
+                    Logout
+                </button>
+            </form>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+        </li>
+        {% endif %}
+    </ul>
 </div>
-{% endblock %} 
+{% endblock %}
 {% block content %}
 <h1>Welcome to the Poetry Quiz!</h1>
 <p>Please select a difficulty:</p>
 <ul>
-  <li><a href="">Literal</a></li>
-  <li><a href="">Inference</a></li>
-  <li><a href="">Evaluative</a></li>
+    {% for difficulty in difficulties %}
+    <li><a href="{% url 'poem' difficulty.id %}">{{ difficulty.name }}</a></li>
+    {% endfor %}
 </ul>
 {% endblock %}
