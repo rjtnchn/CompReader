@@ -1,3 +1,5 @@
+#views.py
+import json
 from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.http import HttpResponseRedirect
@@ -46,29 +48,37 @@ def poem(request, difficulty_id):
     poem = Poem.objects.filter(difficulty=difficulty).first()
     return render(request, 'quiz/poem.html', {'poem': poem})
 
-
-
 def question(request, poem_id):
-    if request.method == 'POST':
-        # Handle form submission and calculate score
-        total_questions = Question.objects.filter(poem_id=poem_id).count()
-        score = 0
-        for i in range(1, total_questions + 1):
-            user_answer = request.POST.get(f'answer{i}')
-            correct_answer = Question.objects.get(poem_id=poem_id, id=i).answer
-            if user_answer.strip().lower() == correct_answer.strip().lower():
-                score += 1
-        
-        # Store score in session
-        request.session['score'] = score
-        return redirect('difficulty_selection')  # Redirect to difficulty selection after finishing questions
-    else:
-        poem = Poem.objects.get(pk=poem_id)
-        questions = Question.objects.filter(poem=poem)
-        request.session['poem_id'] = poem_id
-        request.session['poem_read'] = True
-        return render(request, 'questions/question.html', {'questions': questions})
+    poem = Poem.objects.get(pk=poem_id)
+    questions = Question.objects.filter(poem=poem)
+    request.session['poem_id'] = poem_id
+    request.session['poem_read'] = True
 
+    if request.method == 'POST':
+        total_questions = questions.count()
+        score = 0
+
+        for i in range(1, total_questions + 1):
+            question = Question.objects.get(poem_id=poem_id, id=i)
+            user_answer = request.POST.get(f'question_form_answer{i}', '')
+
+            print(f"User answer: {user_answer}")
+            print(f"Correct answer: {question.correct_answer}")
+            if user_answer== question.correct_answer:
+                score += 1
+                print("sekai: " + score)
+            else:
+                print("wrong asnwer")
+        request.session['score'] = score
+
+        # Create a context dictionary **including the score**
+        context = {'questions': questions, 'score': score, 'poem_id': poem_id}
+
+        return render(request, 'quiz/questions.html', context)
+
+    else:
+        context = {'questions': questions}  # Only questions for GET request
+        return render(request, 'quiz/questions.html', context)
 
 
 def score(request):

@@ -1,3 +1,4 @@
+#urls.py
 from django.urls import path
 from . import views
 
@@ -9,6 +10,6 @@ urlpatterns = [
     path('logout/', views.log_out, name='log_out'), 
     path('difficulty_selection/', views.difficulty_selection, name='difficulty_selection'),
     path('poem/<int:difficulty_id>/',views.poem, name='poem'),
-    path('questions/<int:poem_id>/',views.question, name='question'),
+    path('question/<int:poem_id>/',views.question, name='question'),
     path('score/', views.score, name='score')
 ]
