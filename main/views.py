@@ -48,36 +48,37 @@ def poem(request, difficulty_id):
     poem = Poem.objects.filter(difficulty=difficulty).first()
     return render(request, 'quiz/poem.html', {'poem': poem})
 
-
 def question(request, poem_id):
-    
     poem = Poem.objects.get(pk=poem_id)
     questions = Question.objects.filter(poem=poem)
     request.session['poem_id'] = poem_id
     request.session['poem_read'] = True
-    
+
     if request.method == 'POST':
-        # Handle form submission and calculate score
-        total_questions = Question.objects.filter(poem_id=poem_id).count()
+        total_questions = questions.count()
         score = 0
 
         for i in range(1, total_questions + 1):
             question = Question.objects.get(poem_id=poem_id, id=i)
-            options_json = json.dumps(question.options)  # Convert options list to JSON string
-            answer_choices = json.loads(options_json) 
-
             user_answer = request.POST.get(f'question_form_answer{i}', '')
 
-            # Check if user answer is present in the answer choices (case-insensitive)
-            if user_answer.strip().lower() in [choice.strip().lower() for choice in answer_choices]:
+            print(f"User answer: {user_answer}")
+            print(f"Correct answer: {question.correct_answer}")
+            if user_answer== question.correct_answer:
                 score += 1
-
-        # Store score in session
+                print("sekai: " + score)
+            else:
+                print("wrong asnwer")
         request.session['score'] = score
-        print("hello")
 
-        
-    return render(request, 'quiz/questions.html', {'questions': questions})
+        # Create a context dictionary **including the score**
+        context = {'questions': questions, 'score': score, 'poem_id': poem_id}
+
+        return render(request, 'quiz/questions.html', context)
+
+    else:
+        context = {'questions': questions}  # Only questions for GET request
+        return render(request, 'quiz/questions.html', context)
 
 
 def score(request):

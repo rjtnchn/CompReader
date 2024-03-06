@@ -2,7 +2,7 @@
 {% block title %}Quiz{% endblock %}
 {% block content %}
 <h1>Questions</h1>
-<form action="" method="post" name="question_form">
+<form action="{% url 'question' poem_id %}" method="post" name="question_form">
   {% csrf_token %}
   {% for question in questions %}
     <p>{{ question.text }}</p>
@@ -15,6 +15,9 @@
       {% endfor %}
     </ul>
   {% endfor %}
-  <button type="submit">Done</button>
+  <button type="submit"  name="poem_id" value="{{ poem_id }}" >Done</button>
 </form>
+{% if score %}
+  <h2>Your score: {{ score }}</h2>
+{% endif %}
 {% endblock %}
