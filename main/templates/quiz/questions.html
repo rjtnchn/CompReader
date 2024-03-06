@@ -2,12 +2,19 @@
 {% block title %}Quiz{% endblock %}
 {% block content %}
 <h1>Questions</h1>
-<form action="" method="post">
-    {% csrf_token %}
-    {% for question in questions %}
+<form action="" method="post" name="question_form">
+  {% csrf_token %}
+  {% for question in questions %}
     <p>{{ question.text }}</p>
-    <input type="text" name="answer{{ forloop.counter }}">
-    {% endfor %}
-    <button type="submit">Done</button>
+    <ul>
+      {% for option in question.options %}
+        <li>
+          <input type="radio" name="answer{{ forloop.counter }}" id="answer{{ forloop.counter }}-{{ loop.index }}" value="{{ option }}">
+          <label for="answer{{ forloop.counter }}-{{ loop.index }}">{{ option }}</label>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+  <button type="submit">Done</button>
 </form>
 {% endblock %}

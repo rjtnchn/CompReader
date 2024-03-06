@@ -3,8 +3,8 @@
 {% block content %}
 <h1>{{ poem.title }}</h1>
 <p>{{ poem.content }}</p>
-<form action="{% url 'question' poem.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Proceed to Questions</button>
+<form action="{% url 'question' poem.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit">Proceed to Questions</button>
 </form>
 {% endblock %}

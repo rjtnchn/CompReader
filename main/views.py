@@ -1,3 +1,5 @@
+#views.py
+import json
 from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.http import HttpResponseRedirect
@@ -47,28 +49,35 @@ def poem(request, difficulty_id):
     return render(request, 'quiz/poem.html', {'poem': poem})
 
 
-
 def question(request, poem_id):
+    
+    poem = Poem.objects.get(pk=poem_id)
+    questions = Question.objects.filter(poem=poem)
+    request.session['poem_id'] = poem_id
+    request.session['poem_read'] = True
+    
     if request.method == 'POST':
         # Handle form submission and calculate score
         total_questions = Question.objects.filter(poem_id=poem_id).count()
         score = 0
+
         for i in range(1, total_questions + 1):
-            user_answer = request.POST.get(f'answer{i}')
-            correct_answer = Question.objects.get(poem_id=poem_id, id=i).answer
-            if user_answer.strip().lower() == correct_answer.strip().lower():
+            question = Question.objects.get(poem_id=poem_id, id=i)
+            options_json = json.dumps(question.options)  # Convert options list to JSON string
+            answer_choices = json.loads(options_json) 
+
+            user_answer = request.POST.get(f'question_form_answer{i}', '')
+
+            # Check if user answer is present in the answer choices (case-insensitive)
+            if user_answer.strip().lower() in [choice.strip().lower() for choice in answer_choices]:
                 score += 1
-        
+
         # Store score in session
         request.session['score'] = score
-        return redirect('difficulty_selection')  # Redirect to difficulty selection after finishing questions
-    else:
-        poem = Poem.objects.get(pk=poem_id)
-        questions = Question.objects.filter(poem=poem)
-        request.session['poem_id'] = poem_id
-        request.session['poem_read'] = True
-        return render(request, 'questions/question.html', {'questions': questions})
+        print("hello")
 
+        
+    return render(request, 'quiz/questions.html', {'questions': questions})
 
 
 def score(request):

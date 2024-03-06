@@ -19,8 +19,8 @@ class Poem(models.Model):
 class Question(models.Model):
     poem = models.ForeignKey(Poem, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
-    choices = models.CharField(max_length=255)  # Store choices as a comma-separated string
-    correct_answer = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=255)  # Now stores the correct answer directly
+    options = models.JSONField(default=list)
 
     def __str__(self) -> str:
         return self.text
