@@ -1,10 +1,16 @@
 {% extends 'main/base.html' %}
 {% block title %}Poem{% endblock %}
 {% block content %}
-<h1>{{ poem.title }}</h1>
-<p>{{ poem.content }}</p>
-<form action="{% url 'display_questions' poem.pk %}" method="post">
-  {% csrf_token %}
-  <button type="submit">Proceed to Questions</button>
-</form>
+
+
+{% if poem %}
+    <h2>Random Poem</h2>
+    <h3>{{ poem.title }}</h3>
+    <p>{{ poem.content }}</p>
+{% else %}
+    <p>No poem found.</p>
+{% endif %}
+
+<a href="{% url 'quiz' poem.id %}">Proceed to Quiz</a>
+
 {% endblock %}

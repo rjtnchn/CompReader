@@ -1,17 +1,15 @@
-from django.shortcuts import render, redirect
-from .forms import RegisterForm
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
+from .forms import RegisterForm, QuizForm
 from django.contrib.auth import login, logout
-from .models import Poem, Question, Difficulty, Result
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
+from .models import *
+
 
 
 # Create your views here.
 
 def home(request):
     if request.user.is_authenticated:
-        return redirect('/difficulty_select')
+        return redirect('/dashboard')
     return render(request, 'main/home.html')
 
 
@@ -36,66 +34,67 @@ def log_out(request):
      print(f"Signing out the {request.user}")
      if request.user.is_authenticated:
           logout(request)
-     return redirect('/home')
 
 
-@login_required
-def difficulty_select(request):
+
+def dashboard(request):
+    selected_difficulty = request.GET.get('difficulty')
+
+    if selected_difficulty:
+        redirect('poem', difficulty=selected_difficulty) # Redirect immediately if difficulty is chosen
+
     difficulties = Difficulty.objects.all()
-    return render(request, 'quiz/difficulty_selection.html', {'difficulties': difficulties})
+    context = {'difficulties': difficulties}
+    return render(request, 'quiz/dashboard.html', context)
 
+def poem(request, difficulty=None):
+  # Use the difficulty parameter passed in the URL
+  if difficulty:
+    # Get all poems with the selected difficulty
+    poems = Poem.objects.filter(difficulty__name=difficulty)
 
-@login_required
-def display_poem(request, difficulty_id):
-    if difficulty_id is None:
-        # Handle the case where difficulty_id is None
-        # Redirect the user to an appropriate page or show an error message
-        return HttpResponse("Invalid difficulty")
+    # If there are poems for the chosen difficulty
+    if poems:
+      # Pick a random poem from the filtered set
+      random_poem = poems.order_by('?').first()
+      context = {'poem': random_poem}
+      return render(request, 'quiz/poem.html', context)
+    else:
+      # Handle situation where no poems exist for the difficulty
+      message = "No poems found for that difficulty yet!"
+      context = {'message': message}
+      return render(request, 'quiz/poem.html', context)
+  else:
+    # User might have accessed directly or difficulty not found, redirect to dashboard
+    return redirect('dashboard')
 
-    difficulty = get_object_or_404(Difficulty, pk=difficulty_id)
-    poem = Poem.objects.filter(difficulty=difficulty).first()
-    if poem is None:
-        # Handle the case where there are no poems for the given difficulty
-        # Redirect the user to an appropriate page or show an error message
-        return HttpResponse("No poem found for this difficulty")
+    
+    
+from django.db import transaction  # For atomic database operations
 
-    questions = poem.questions.all()
-    return render(request, 'quiz/poem.html', {'poem': poem, 'questions': questions})
-
-
-
-@login_required
-def display_questions(request, poem_id):
+def quiz(request, poem_id):
     poem = get_object_or_404(Poem, pk=poem_id)
-    difficulty_id = poem.difficulty.id 
-    questions = Question.objects.filter(poem=poem)
-    return render(request, 'quiz/questions.html', {'questions': questions, 'poem_id': poem_id, 'difficulty_id': difficulty_id})
+    questions = poem.questions.all()
 
-
-@login_required
-def calculate_score(request):
     if request.method == 'POST':
-        poem_id = request.POST.get('poem_id')
-        poem = Poem.objects.get(pk=poem_id)
-        questions = Question.objects.filter(poem=poem)
-        total_questions = questions.count()
-        score = 0
+        # Handle form submission
+        form = QuizForm(request.POST, questions=questions, user=request.user)  # Pass user (optional)
+        if form.is_valid():
+            score = form.cleaned_data['score']
+            difficulty = poem.difficulty  # Assuming difficulty is associated with the poem
 
-        for question in questions:
-            user_answer = request.POST.get(f'question_{question.id}_answer', '')  # Get user's answer for this question
+            with transaction.atomic():  # Wrap score creation in a transaction
+                new_score = Score.objects.create(user=form.cleaned_data['user'],
+                                                 difficulty=difficulty,
+                                                 score=score)
 
-            if user_answer == question.correct_answer:
-                score += 1
+            # Additional logic for handling score, e.g., displaying score message
 
-        # Save the result to the database
-        Result.objects.create(poem=poem, user=request.user, score=score)
+            context = {'poem': poem, 'questions': questions, 'score': score}
+            return render(request, 'quiz/quiz.html', context)
+    else:
+        # Initial form for the first render
+        form = QuizForm()
 
-        return redirect('score')  # Redirect to the score page after calculation
-
-
-@login_required
-def display_score(request):
-    # Retrieve the user's results
-    user_results = Result.objects.filter(user=request.user)
-
-    return render(request, 'quiz/score.html', {'user_results': user_results})
+    context = {'poem': poem, 'questions': questions, 'form': form}
+    return render(request, 'quiz/quiz.html', context)
